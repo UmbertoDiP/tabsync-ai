@@ -127,3 +127,8 @@ $("btnBuyCredits").addEventListener("click", () => {
     }
   });
 });
+
+document.getElementById("linkEula").addEventListener("click", (e) => {
+  e.preventDefault();
+  chrome.tabs.create({ url: chrome.runtime.getURL("EULA.txt") });
+});

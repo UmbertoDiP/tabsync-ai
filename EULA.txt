@@ -1,0 +1,67 @@
+# End User License Agreement (EULA)
+
+**Last updated: August 1, 2026**
+
+This End User License Agreement ("EULA") is a binding legal agreement between you ("User" or "You") and Umberto Di Puorto ("Licensor", "We", "Us", or "Our") governing your use of the TabSyncAI software application, including all related websites, services, and documentation (collectively, the "Software").
+
+BY INSTALLING, ACCESSING, OR USING THE SOFTWARE, YOU AGREE TO BE BOUND BY THE TERMS OF THIS EULA. IF YOU DO NOT AGREE, DO NOT INSTALL OR USE THE SOFTWARE.
+
+## 1. License Grant
+
+Licensor grants you a non-exclusive, non-transferable, revocable, limited license to install and use the Software on devices you own or control, solely for your personal or internal business purposes, subject to the terms of this EULA.
+
+## 2. Restrictions
+
+You may not: (a) copy, modify, adapt, or create derivative works of the Software; (b) distribute, sell, lease, rent, sublicense, or otherwise transfer the Software to any third party; (c) reverse engineer, decompile, disassemble, or attempt to derive the source code of the Software; (d) remove, alter, or obscure any proprietary notices or labels on the Software; (e) use the Software for any unlawful purpose or in violation of any applicable law.
+
+## 3. Modifications to the Software
+
+Licensor reserves the right, at its sole discretion and at any time without prior notice, to:
+
+- (a) modify, enhance, suspend, or discontinue the Software or any feature or component thereof;
+- (b) introduce, modify, or remove advertisements, sponsored content, promotional messages, banners, or other commercial content within the Software, regardless of whether such content was present in previous versions;
+- (c) change the placement, frequency, format, or nature of such commercial content at any time.
+
+You acknowledge that the absence of advertisements or commercial content in the current version does not constitute a waiver of Licensor's right to introduce such content in any future version, update, or release.
+
+## 4. Fees, Subscriptions, and Pricing
+
+Licensor may offer certain features or services on a free basis, a one-time purchase basis, or a subscription basis. Licensor reserves the right to:
+
+- (a) introduce new paid features, subscription tiers, or pricing plans at any time;
+- (b) modify existing pricing, subscription fees, or billing terms;
+- (c) convert free features to paid features with reasonable notice.
+
+Any changes to pricing or subscription terms will be communicated through the Software or via email. Your continued use of paid features after a price change constitutes acceptance of the new pricing. If you do not agree, your sole remedy is to cancel your subscription before the change takes effect.
+
+## 5. Privacy
+
+Your use of the Software is also governed by our Privacy Policy. By using the Software, you consent to the collection and use of your data as described in the Privacy Policy.
+
+## 6. Disclaimer of Warranties
+
+THE SOFTWARE IS PROVIDED "AS IS" AND "AS AVAILABLE," WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE, AND NON-INFRINGEMENT. LICENSOR DOES NOT WARRANT THAT THE SOFTWARE WILL BE UNINTERRUPTED, ERROR-FREE, OR FREE OF HARMFUL COMPONENTS.
+
+## 7. Limitation of Liability
+
+TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, LICENSOR SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING BUT NOT LIMITED TO LOSS OF PROFITS, DATA, USE, OR GOODWILL, ARISING OUT OF OR RELATED TO YOUR USE OF OR INABILITY TO USE THE SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+
+## 8. Termination
+
+This EULA is effective until terminated. Licensor may terminate this EULA at any time without notice if you breach any term. Upon termination, you must cease all use of the Software and delete all copies. Sections 2, 5, 6, 7, 8, 9, and 10 survive termination.
+
+## 9. Changes to This EULA
+
+Licensor may update this EULA from time to time. Material changes will be communicated via in-app notice, email, or by requiring acceptance upon your next use of the Software. Your continued use after such notice constitutes acceptance of the revised EULA. If you do not agree, your sole remedy is to discontinue use of the Software.
+
+## 10. Governing Law and Dispute Resolution
+
+This EULA is governed by the laws of Italy. Any dispute arising out of or in connection with this EULA shall be submitted to the exclusive jurisdiction of the courts of Italy.
+
+## 11. Contact
+
+For questions regarding this EULA, contact: umberto.dipuorto2@consultant.aruba.it
+
+---
+
+BY INSTALLING OR USING THE SOFTWARE, YOU ACKNOWLEDGE THAT YOU HAVE READ, UNDERSTOOD, AND AGREE TO BE BOUND BY THIS EULA.
