@@ -31,11 +31,10 @@ export async function buyCredits(amountDollars = 5) {
       body: JSON.stringify({ amount: amountDollars * 100 })
     });
     const data = await res.json();
-    if (data.url) {
-      chrome.tabs.create({ url: data.url });
-    }
+    return data;
   } catch (e) {
-    alert("Payment error. Try again.");
+    console.error("[Cloud] Buy error:", e);
+    return { error: e.message };
   }
 }
 

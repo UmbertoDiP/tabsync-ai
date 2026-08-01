@@ -1,7 +1,8 @@
 import { runDeepEradication } from "./modules/cleaner.js";
 import { organizeTabs } from "./modules/organizer.js";
 import { exportAllTabs, importOrganizedTabs } from "./modules/exporter.js";
-import { getUserId } from "./modules/cloud.js";
+import { getUserId, getUserStatus, buyCredits } from "./modules/cloud.js";
+import { restoreWorkspace } from "./modules/restorer.js";
 
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
@@ -67,7 +68,25 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg.action === "get_user_info") {
     (async () => {
       const userId = await getUserId();
-      sendResponse({ userId });
+      const status = await getUserStatus();
+      sendResponse({ userId, ...status });
+    })();
+    return true;
+  }
+
+  if (msg.action === "buy_credits") {
+    (async () => {
+      try {
+        const data = await buyCredits(5);
+        if (data && data.url) {
+          chrome.tabs.create({ url: data.url });
+          sendResponse({ success: true, url: data.url });
+        } else {
+          sendResponse({ success: false, error: "No checkout URL" });
+        }
+      } catch (e) {
+        sendResponse({ success: false, error: e.message });
+      }
     })();
     return true;
   }
@@ -78,7 +97,25 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   }
 
   if (msg.action === "import") {
-    importOrganizedTabs(msg.data).then(r => sendResponse(r));
+    (async () => {
+      const data = msg.data;
+      // D3: detect restorer format (groups with numeric .id)
+      if (data && data.tabs && data.groups && data.groups[0] && typeof data.groups[0].id === 'number') {
+        try {
+          const r = await restoreWorkspace(data);
+          sendResponse(r);
+        } catch (e) {
+          sendResponse({ error: e.message });
+        }
+      } else {
+        try {
+          const r = await importOrganizedTabs(data);
+          sendResponse(r);
+        } catch (e) {
+          sendResponse({ error: e.message });
+        }
+      }
+    })();
     return true;
   }
 });

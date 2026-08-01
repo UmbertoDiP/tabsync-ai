@@ -9,7 +9,7 @@ function setStep(n) {
   document.querySelectorAll(".step-panel").forEach(p => p.classList.remove("active"));
   $("step" + n).classList.add("active");
   $("currentStepNum").textContent = n;
-  $("progressBar").style.width = (n / 3) * 100 + "%";
+  $("progressBar").style.width = (n / 4) * 100 + "%";
 }
 
 function showStatus(id, msg, type) {
@@ -98,9 +98,32 @@ $("fileRestore").addEventListener("change", async (e) => {
 // Prevent advancing without backup
 if (!backupDownloaded) setStep(1);
 
-// Show user ID
+// Show user ID and billing status
 chrome.runtime.sendMessage({ action: "get_user_info" }, (r) => {
-  if (r && r.userId) {
+  if (r) {
     $("userIdDisplay").textContent = "ID: " + r.userId;
+    if (r.error) {
+      $("billingDisplay").textContent = "Offline. Check worker.";
+      return;
+    }
+    const freeLeft = r.freeUses !== undefined ? Math.max(0, 5 - r.freeUses) : 5;
+    const credits = r.credits || 0;
+    $("billingDisplay").textContent = `Free ops: ${freeLeft}/5 | Credits: \$${credits.toFixed(2)}`;
+    if (freeLeft <= 0 && credits <= 0) {
+      $("billingDisplay").textContent += " (exhausted)";
+      $("btnBuyCredits").style.display = "block";
+    }
   }
+});
+
+$("btnBuyCredits").addEventListener("click", () => {
+  $("btnBuyCredits").disabled = true;
+  $("btnBuyCredits").textContent = "Opening checkout...";
+  chrome.runtime.sendMessage({ action: "buy_credits" }, (r) => {
+    $("btnBuyCredits").disabled = false;
+    $("btnBuyCredits").textContent = "Buy Credits";
+    if (!r || !r.success) {
+      showStatus("backupStatus", "Payment failed. Try again.", "error");
+    }
+  });
 });

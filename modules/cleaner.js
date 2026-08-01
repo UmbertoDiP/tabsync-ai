@@ -25,7 +25,7 @@ async function saveState() {
 
 async function purgeSavedGroups(tree) {
   for (const node of tree) {
-    if (node.title && /group|gruppo/i.test(node.title)) {
+    if (node.title && /(tab|tabsync).*(group|gruppo)|(group|gruppo).*(tab|tabsync)/i.test(node.title)) {
       try { await chrome.bookmarks.removeTree(node.id); } catch {}
     }
     if (node.children) await purgeSavedGroups(node.children);

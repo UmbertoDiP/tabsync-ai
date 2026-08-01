@@ -53,6 +53,15 @@ export async function importOrganizedTabs(data) {
     return { error: "Invalid JSON: missing groups array" };
   }
 
+  // D1: Handle export format (flat tabs + groups without .tabs[] array)
+  if (data.tabs && Array.isArray(data.tabs) && data.groups.length > 0 && !data.groups[0].tabs) {
+    for (const g of data.groups) {
+      g.tabs = data.tabs
+        .filter(t => t.groupTitle === g.name)
+        .map(t => ({ url: t.url, title: t.title }));
+    }
+  }
+
   const allTabs = await chrome.tabs.query({});
   const existingUrls = new Set();
   for (const t of allTabs) {
