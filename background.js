@@ -1,6 +1,7 @@
 import { runDeepEradication } from "./modules/cleaner.js";
 import { organizeTabs } from "./modules/organizer.js";
 import { exportAllTabs, importOrganizedTabs } from "./modules/exporter.js";
+import { getUserId } from "./modules/cloud.js";
 
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
@@ -59,6 +60,14 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       const groups = await chrome.tabGroups.query({});
       console.log("[TabSync] stats: tabs=" + tabs.length + " groups=" + groups.length);
       sendResponse({ tabs: tabs.length, groups: groups.length });
+    })();
+    return true;
+  }
+
+  if (msg.action === "get_user_info") {
+    (async () => {
+      const userId = await getUserId();
+      sendResponse({ userId });
     })();
     return true;
   }

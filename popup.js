@@ -97,3 +97,10 @@ $("fileRestore").addEventListener("change", async (e) => {
 
 // Prevent advancing without backup
 if (!backupDownloaded) setStep(1);
+
+// Show user ID
+chrome.runtime.sendMessage({ action: "get_user_info" }, (r) => {
+  if (r && r.userId) {
+    $("userIdDisplay").textContent = "ID: " + r.userId;
+  }
+});
