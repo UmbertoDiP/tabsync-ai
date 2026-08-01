@@ -1,4 +1,4 @@
-const WORKER_URL = "https://tabsync-backend.umbertodipuorto.workers.dev";
+const WORKER_URL = "https://tabsync-backend.dipuortoumberto.workers.dev";
 
 export async function getUserId() {
   let { tabsync_user_id } = await chrome.storage.local.get("tabsync_user_id");

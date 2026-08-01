@@ -1,0 +1,7 @@
+name = "tabsync-backend"
+main = "worker.js"
+compatibility_date = "2025-01-01"
+
+[[kv_namespaces]]
+binding = "TABSYNC_KV"
+id = "e516e95cc11b4b928b2d92f4f6ea7bac"
