@@ -1,15 +1,26 @@
 {
   "manifest_version": 3,
   "name": "TabSync AI",
-  "version": "4.0",
+  "version": "4.0.0",
   "description": "Guided wizard for tab workspace management with deep nuclear clean.",
   "permissions": ["tabs", "tabGroups", "windows", "storage", "downloads", "notifications", "contextMenus", "bookmarks", "idle"],
   "background": {
     "service_worker": "background.js",
     "type": "module"
   },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
   "action": {
-    "default_popup": "popup.html"
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    },
+    "default_title": "TabSync AI"
   },
   "commands": {
     "organize-all": {

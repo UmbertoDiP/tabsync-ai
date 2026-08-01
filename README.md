@@ -49,7 +49,7 @@ tabsync-ai/
 - Chrome Extension Manifest V3
 - ES Modules
 - Zero dependencies
-- Cloudflare Workers + Stripe + OpenRouter (backend)
+- Cloudflare Workers + Stripe (backend, credit purchase pending)
 - Chrome Web Store ready
 
 ## License

@@ -46,7 +46,7 @@ run('node scripts/bump-version.mjs', projectRoot);
 
 const newVer = JSON.parse(readFileSync(join(projectRoot, config.versionFiles?.[0] || 'package.json'), 'utf-8')).version;
 updateState('commit', 'running', { version: newVer });
-for (const f of config.versionFiles || ['package.json']) { run(`git add -A "${f}"`); }
+for (const f of config.versionFiles || ['package.json']) { run(`git add "${f}"`); }
 run(`git commit -m "chore(release): v${newVer}"`);
 
 updateState('gate', 'running', { version: newVer });

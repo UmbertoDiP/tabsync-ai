@@ -1,8 +1,8 @@
 export default {
   name: 'TabSyncAI',
   repo: 'UmbertoDiP/TabSyncAI',
-  branch: 'master',
-  actionsUrl: 'https://github.com/UmbertoDiP/TabSyncAI/actions?query=branch%3Amaster',
+  branch: 'main',
+  actionsUrl: 'https://github.com/UmbertoDiP/TabSyncAI/actions?query=branch%3Amain',
   versionFiles: ['package.json'],
 
   gates: {
