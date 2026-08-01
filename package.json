@@ -1,0 +1,13 @@
+{
+  "name": "tab-sync-ai",
+  "version": "4.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "bump": "node scripts/bump-version.mjs",
+    "gate:pre-release": "node scripts/gate-pre-release.mjs",
+    "release:push": "node scripts/release-push.mjs",
+    "release:status": "node scripts/release-status.mjs",
+    "release:watch": "node scripts/release-watch.mjs"
+  }
+}

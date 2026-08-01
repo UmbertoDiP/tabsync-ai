@@ -1,0 +1,10 @@
+# Release pipeline artifacts
+.release-state.json
+.release-log.txt
+.release-watch.log
+.gate-results.json
+node_modules/
+.vscode/
+.idea/
+*.log
+.DS_Store
