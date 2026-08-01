@@ -1,6 +1,6 @@
 let cleaning = false;
 
-async function saveAndExportState() {
+async function saveState() {
   const allTabs = await chrome.tabs.query({});
   const allGroups = await chrome.tabGroups.query({});
 
@@ -16,49 +16,52 @@ async function saveAndExportState() {
   const json = JSON.stringify(stored, null, 2);
   await chrome.downloads.download({
     url: "data:application/json;base64," + btoa(unescape(encodeURIComponent(json))),
-    filename: `cleaner-backup-${ts}.json`,
+    filename: `tabsync-backup-${ts}.json`,
     saveAs: false
   });
 
-  console.log("[Cleaner] Backup: " + stored.tabs.length + " tabs, " + stored.groups.length + " groups");
+  return stored;
 }
 
-function isEmptyNewTab(tab) {
-  return !tab.pinned && !tab.audible && (
-    tab.url === "about:blank" || tab.url === "" || tab.url.startsWith("chrome://newtab")
-  );
+async function purgeSavedGroups(tree) {
+  for (const node of tree) {
+    if (node.title && /group|gruppo/i.test(node.title)) {
+      try { await chrome.bookmarks.removeTree(node.id); } catch {}
+    }
+    if (node.children) await purgeSavedGroups(node.children);
+  }
 }
 
-export async function cleanAll() {
+export async function runDeepEradication() {
   if (cleaning) return { status: "locked" };
   cleaning = true;
 
   try {
-    await saveAndExportState();
+    const backupData = await saveState();
+
+    // Purge saved tab groups from bookmarks
+    try {
+      const tree = await chrome.bookmarks.getTree();
+      await purgeSavedGroups(tree);
+    } catch (e) {
+      console.warn("[Cleaner] Bookmark purge error:", e);
+    }
 
     const oldWindows = await chrome.windows.getAll({ populate: true });
-    if (oldWindows.length === 0) { cleaning = false; return { status: "no_windows" }; }
-
-    let replaced = 0;
-    let preserved = 0;
 
     for (const oldWin of oldWindows) {
       if (oldWin.type !== "normal") continue;
 
       const tabs = oldWin.tabs || [];
+      const allIds = tabs.map(t => t.id);
 
-      // Force ungroup ALL tabs in groups BEFORE destroying the window.
-      // This brings every group to 0 tabs, triggering Chrome's GC.
-      const groupedTabIds = tabs
-        .filter(t => t.groupId !== -1)
-        .map(t => t.id);
-
-      if (groupedTabIds.length > 0) {
+      // Force ungroup ALL tabs
+      if (allIds.length > 0) {
         try {
-          await chrome.tabs.ungroup(groupedTabIds);
-          await new Promise(r => setTimeout(r, 100));
+          await chrome.tabs.ungroup(allIds);
+          await new Promise(r => setTimeout(r, 150));
         } catch (e) {
-          console.warn("[Cleaner] Force ungroup error:", e);
+          console.warn("[Cleaner] Ungroup error:", e);
         }
       }
 
@@ -71,30 +74,20 @@ export async function cleanAll() {
         state: oldWin.state === "fullscreen" ? "maximized" : (
           ["minimized", "maximized"].includes(oldWin.state) ? oldWin.state : "normal"
         ),
-        left: oldWin.left,
-        top: oldWin.top,
-        width: oldWin.width,
-        height: oldWin.height
+        left: oldWin.left, top: oldWin.top, width: oldWin.width, height: oldWin.height
       });
 
       if (toPreserve.length > 0) {
         const preserveIds = toPreserve.map(t => t.id);
-
-        // Ungroup before moving: prevents groups from migrating to the new window
-        await chrome.tabs.ungroup(preserveIds);
-
         await chrome.tabs.move(preserveIds, { windowId: newWin.id, index: -1 });
         for (const t of toPreserve) {
           await chrome.tabs.update(t.id, { pinned: t.pinned });
         }
-        preserved += toPreserve.length;
-
         if (activeTab && preserveIds.includes(activeTab.id)) {
           await chrome.tabs.update(activeTab.id, { active: true });
         }
-
         const newWinTabs = await chrome.tabs.query({ windowId: newWin.id });
-        for (const b of newWinTabs.filter(t => isEmptyNewTab(t))) {
+        for (const b of newWinTabs.filter(t => !t.pinned && !t.audible && (t.url === "about:blank" || t.url === "" || t.url.startsWith("chrome://newtab")))) {
           try { await chrome.tabs.remove(b.id); } catch {}
         }
       }
@@ -104,9 +97,9 @@ export async function cleanAll() {
       if (oldWin.state === "fullscreen") {
         await chrome.windows.update(newWin.id, { state: "fullscreen" });
       }
-
-      replaced++;
     }
+
+    await new Promise(r => setTimeout(r, 500));
 
     const finalGroups = await chrome.tabGroups.query({});
     const finalTabs = await chrome.tabs.query({});
@@ -114,44 +107,15 @@ export async function cleanAll() {
     chrome.notifications.create({
       type: "basic",
       iconUrl: "icons/icon128.png",
-      title: "Workspace Manager",
-      message: `${replaced} windows cleaned, ${preserved} tabs preserved, ${finalGroups.length} groups removed`
+      title: "TabSync AI",
+      message: `Deep clean done: ${finalTabs.length} tabs, ${finalGroups.length} groups remaining`
     });
 
     cleaning = false;
-    return { success: true, windows_replaced: replaced, tabs_preserved: preserved, remaining_groups: finalGroups.length };
+    return { success: true, tabs_remaining: finalTabs.length, groups_remaining: finalGroups.length, backupData };
   } catch (e) {
     console.error("[Cleaner] Error:", e);
-    await rollback();
     cleaning = false;
     return { success: false, error: e.message };
   }
-}
-
-async function rollback() {
-  const { lastCleanDump } = await chrome.storage.local.get("lastCleanDump");
-  if (!lastCleanDump || !lastCleanDump.tabs) return;
-
-  const rescueWin = await chrome.windows.create({ focused: true, state: "maximized" });
-  let restored = 0;
-
-  for (const t of lastCleanDump.tabs) {
-    if (!t.url || t.url === "about:blank" || t.url.startsWith("chrome://newtab")) continue;
-    try {
-      await chrome.tabs.create({ windowId: rescueWin.id, url: t.url, active: false, pinned: t.pinned });
-      restored++;
-      if (restored % 5 === 0) await new Promise(r => setTimeout(r, 300));
-    } catch {}
-  }
-
-  const rescueTabs = await chrome.tabs.query({ windowId: rescueWin.id });
-  const blank = rescueTabs.find(t => t.url === "about:blank" || t.url.startsWith("chrome://newtab"));
-  if (blank) try { await chrome.tabs.remove(blank.id); } catch {}
-
-  chrome.notifications.create({
-    type: "basic",
-    iconUrl: "icons/icon128.png",
-    title: "Workspace Manager: Rollback",
-    message: `Recovered ${restored} tabs in rescue window`
-  });
 }

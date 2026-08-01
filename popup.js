@@ -1,56 +1,99 @@
-const statusDiv = document.getElementById("status");
-const statsDiv = document.getElementById("stats");
-const btnOrganize = document.getElementById("btn-organize");
-const btnClean = document.getElementById("btn-clean");
-const btnExport = document.getElementById("btn-export");
-const btnImport = document.getElementById("btn-import");
-const fileInput = document.getElementById("file-input");
+let currentStep = 1;
+let backupDownloaded = false;
+let auditData = null;
 
-function showStatus(msg, type) {
-  statusDiv.textContent = msg;
-  statusDiv.className = `status ${type}`;
-  if (type !== "loading") setTimeout(() => { statusDiv.className = "status"; statusDiv.style.display = "none"; }, 3000);
+const $ = (id) => document.getElementById(id);
+
+function setStep(n) {
+  currentStep = n;
+  document.querySelectorAll(".step-panel").forEach(p => p.classList.remove("active"));
+  $("step" + n).classList.add("active");
+  $("currentStepNum").textContent = n;
+  $("progressBar").style.width = (n / 3) * 100 + "%";
 }
 
-async function loadStats() {
-  chrome.runtime.sendMessage({ action: "get_stats" }, (r) => {
-    if (r) statsDiv.textContent = `${r.tabs} tabs  ·  ${r.groups} groups`;
+function showStatus(id, msg, type) {
+  const el = $(id);
+  el.textContent = msg;
+  el.className = "status-msg " + type;
+}
+
+// Step 1: Download backup
+$("btnDownloadBackup").addEventListener("click", async () => {
+  $("btnDownloadBackup").disabled = true;
+  showStatus("backupStatus", "Saving backup...", "info");
+  chrome.runtime.sendMessage({ action: "export" }, (r) => {
+    $("btnDownloadBackup").disabled = false;
+    if (r && r.success) {
+      backupDownloaded = true;
+      showStatus("backupStatus", "Backup saved! You can proceed.", "success");
+      // Auto-advance to step 2 after short delay
+      setTimeout(() => setStep(2), 500);
+      loadAudit();
+    } else {
+      showStatus("backupStatus", "Failed to save. Try again.", "error");
+    }
+  });
+});
+
+// Step 2: Load audit
+async function loadAudit() {
+  chrome.runtime.sendMessage({ action: "get_full_audit" }, (r) => {
+    if (r && r.success) {
+      auditData = r;
+      $("auditBox").innerHTML = `
+        <span>${r.tabsCount}</span> open tabs<br>
+        <span>${r.groupsCount}</span> active groups<br>
+        <span>${r.hasBookmarks ? "Yes" : "No"}</span> saved groups in bookmarks
+      `;
+    } else {
+      $("auditBox").innerHTML = "Failed to load audit.";
+    }
   });
 }
 
-async function doAction(action, label) {
-  showStatus(`Running ${label}...`, "loading");
-  const allBtns = [btnOrganize, btnClean, btnExport, btnImport];
-  allBtns.forEach(b => b.disabled = true);
-  chrome.runtime.sendMessage({ action }, (r) => {
-    allBtns.forEach(b => b.disabled = false);
-    if (chrome.runtime.lastError) { showStatus("Connection error", "error"); return; }
-    if (r?.success === false) { showStatus(r.error || "Failed", "error"); return; }
-    showStatus(r?.message || `${label} done`, "success");
-    loadStats();
+$("chkConfirm").addEventListener("change", () => {
+  $("btnExecute").disabled = !$("chkConfirm").checked;
+});
+
+// Step 3: Execute
+$("btnExecute").addEventListener("click", async () => {
+  setStep(3);
+  chrome.runtime.sendMessage({ action: "execute_deep_eradication" }, (r) => {
+    setStep(4);
+    if (r && r.success) {
+      $("resultText").textContent = `${r.tabs_remaining || 0} tabs, ${r.groups_remaining || 0} groups remaining. All clean!`;
+    } else {
+      $("resultText").textContent = "Clean failed: " + (r?.error || "unknown");
+    }
   });
-}
+});
 
-btnOrganize.addEventListener("click", () => doAction("clean_and_organize", "Organize"));
-btnClean.addEventListener("click", () => doAction("clean_all", "Clean"));
-btnExport.addEventListener("click", () => doAction("export", "Export"));
+$("btnClose").addEventListener("click", () => window.close());
 
-btnImport.addEventListener("click", () => fileInput.click());
-fileInput.addEventListener("change", async () => {
-  const file = fileInput.files[0];
+// Restore from backup
+$("btnRestore").addEventListener("click", () => {
+  $("fileRestore").click();
+});
+
+$("fileRestore").addEventListener("change", async (e) => {
+  const file = e.target.files[0];
   if (!file) return;
   try {
     const text = await file.text();
     const data = JSON.parse(text);
-    if (!data.groups || !Array.isArray(data.groups)) { showStatus("Invalid format: missing groups", "error"); return; }
-    const total = data.groups.reduce((s, g) => s + (g.tabs ? g.tabs.length : 0), 0);
-    showStatus(`Importing ${total} tabs...`, "loading");
+    $("btnRestore").textContent = "Restoring...";
+    $("btnRestore").disabled = true;
     chrome.runtime.sendMessage({ action: "import", data }, (r) => {
-      if (r?.error) { showStatus(r.error, "error"); return; }
-      showStatus(r?.message || "Import done", "success");
-      loadStats();
+      $("btnRestore").textContent = "Restore from Backup JSON";
+      $("btnRestore").disabled = false;
+      if (r && r.message) showStatus("backupStatus", r.message, "success");
+      else showStatus("backupStatus", "Restore failed", "error");
     });
-  } catch (e) { showStatus("Parse error: " + e.message, "error"); }
+  } catch (err) {
+    showStatus("backupStatus", "Invalid JSON file", "error");
+  }
 });
 
-loadStats();
+// Prevent advancing without backup
+if (!backupDownloaded) setStep(1);

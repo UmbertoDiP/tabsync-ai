@@ -3,43 +3,87 @@
 <head>
   <meta charset="UTF-8">
   <style>
-    body { font-family: system-ui, sans-serif; width: 260px; padding: 16px; margin: 0; background: #1a1a2e; color: #e0e0e0; }
-    h2 { font-size: 16px; margin: 0 0 12px 0; color: #fff; text-align: center; }
-    button { width: 100%; padding: 10px; margin-bottom: 8px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; color: #fff; }
-    button:disabled { opacity: 0.4; cursor: not-allowed; }
-    .btn-organize { background: #0f3460; }
-    .btn-organize:hover { background: #1a4a7a; }
-    .btn-clean { background: #533483; }
-    .btn-clean:hover { background: #6a44a3; }
-    .btn-export { background: #0d3b0d; }
-    .btn-export:hover { background: #1a5a1a; }
-    .btn-import { background: #d48b0e; }
-    .btn-import:hover { background: #e0a020; }
-    .stats { font-size: 11px; color: #666; text-align: center; margin: 8px 0; }
-    .status { font-size: 12px; text-align: center; padding: 8px; border-radius: 6px; margin-top: 8px; display: none; }
-    .status.success { display: block; background: #0d3b0d; color: #4ade80; }
-    .status.error { display: block; background: #3b0d0d; color: #f87171; }
-    .status.loading { display: block; background: #16213e; color: #60a5fa; }
-    .separator { border-top: 1px solid #333; margin: 10px 0; }
-    label { font-size: 10px; color: #666; display: block; margin-bottom: 2px; }
-    input[type="file"] { display: none; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { width: 320px; font-family: system-ui, sans-serif; font-size: 13px; background: #0d1117; color: #c9d1d9; padding: 0; }
+    .wizard-container { padding: 16px; }
+    .wizard-header { text-align: center; margin-bottom: 12px; }
+    .wizard-header h2 { font-size: 18px; color: #58a6ff; }
+    .wizard-header h2 span { color: #8b949e; font-weight: 400; }
+    .step-indicator { font-size: 11px; color: #8b949e; margin-top: 4px; }
+    .progress-bar-container { height: 4px; background: #21262d; border-radius: 2px; margin-bottom: 16px; }
+    .progress-bar { height: 100%; background: #238636; border-radius: 2px; transition: width .3s; width: 0%; }
+    .step-panel { display: none; }
+    .step-panel.active { display: block; }
+    .step-panel h3 { font-size: 14px; margin-bottom: 8px; color: #f0f6fc; }
+    .step-desc { font-size: 12px; color: #8b949e; margin-bottom: 12px; line-height: 1.5; }
+    .btn { display: block; width: 100%; padding: 10px; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; margin-bottom: 8px; transition: opacity .2s; }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-primary { background: #238636; color: #fff; }
+    .btn-primary:hover:not(:disabled) { background: #2ea043; }
+    .btn-danger { background: #da3633; color: #fff; }
+    .btn-danger:hover:not(:disabled) { background: #f85149; }
+    .btn-secondary { background: #21262d; color: #c9d1d9; border: 1px solid #30363d; }
+    .status-msg { font-size: 11px; margin-top: 6px; padding: 6px; border-radius: 4px; display: none; }
+    .status-msg.success { display: block; background: #0d2b1e; color: #3fb950; }
+    .status-msg.error { display: block; background: #2b0d14; color: #f85149; }
+    .status-msg.info { display: block; background: #0d1b2b; color: #58a6ff; }
+    .audit-box { background: #161b22; border: 1px solid #30363d; border-radius: 6px; padding: 10px; font-size: 12px; margin-bottom: 12px; line-height: 1.6; }
+    .audit-box span { color: #f0f6fc; font-weight: 600; }
+    .confirm-checkbox { display: flex; align-items: flex-start; gap: 8px; font-size: 12px; color: #8b949e; cursor: pointer; }
+    .confirm-checkbox input { margin-top: 2px; accent-color: #238636; }
+    .loader-box { text-align: center; padding: 20px; }
+    .spinner { width: 32px; height: 32px; border: 3px solid #21262d; border-top-color: #58a6ff; border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto 12px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
-  <h2>TabSync AI</h2>
+  <div class="wizard-container">
+    <header class="wizard-header">
+      <h2>TabSync <span>Wizard</span></h2>
+      <div class="step-indicator">Step <span id="currentStepNum">1</span> of 3</div>
+    </header>
 
-  <div class="stats" id="stats">Loading...</div>
+    <div class="progress-bar-container">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
 
-  <button class="btn-organize" id="btn-organize">Organize All Tabs</button>
-  <button class="btn-clean" id="btn-clean">Nuclear Clean</button>
+    <div class="step-panel active" id="step1">
+      <h3>1. Backup Required</h3>
+      <p class="step-desc">Save your current session before cleanup. You can restore it later.</p>
+      <button id="btnDownloadBackup" class="btn btn-primary">Download Backup JSON</button>
+      <div id="backupStatus" class="status-msg"></div>
+    </div>
 
-  <div class="separator"></div>
+    <div class="step-panel" id="step2">
+      <h3>2. Confirm</h3>
+      <p class="step-desc">Review what will be erased:</p>
+      <div class="audit-box" id="auditBox">Loading...</div>
+      <label class="confirm-checkbox">
+        <input type="checkbox" id="chkConfirm">
+        <span>I confirm. Destroy all tabs and groups.</span>
+      </label>
+      <button id="btnExecute" class="btn btn-danger" disabled style="margin-top:12px">Execute Deep Clean</button>
+    </div>
 
-  <button class="btn-export" id="btn-export">Export JSON</button>
-  <button class="btn-import" id="btn-import">Import JSON...</button>
-  <input type="file" id="file-input" accept=".json">
+    <div class="step-panel" id="step3">
+      <h3>3. Cleaning...</h3>
+      <div class="loader-box">
+        <div class="spinner"></div>
+        <span id="cleanProgressText">Destroying all groups and tabs...</span>
+      </div>
+    </div>
 
-  <div class="status" id="status"></div>
+    <div class="step-panel" id="step4">
+      <h3>Done</h3>
+      <p class="step-desc" id="resultText"></p>
+      <button id="btnClose" class="btn btn-primary">Close</button>
+    </div>
+
+    <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #21262d; text-align: center;">
+      <input type="file" id="fileRestore" accept=".json" style="display: none;">
+      <button id="btnRestore" class="btn btn-secondary" style="font-size: 11px;">Restore from Backup JSON</button>
+    </div>
+  </div>
 
   <script src="popup.js"></script>
 </body>
