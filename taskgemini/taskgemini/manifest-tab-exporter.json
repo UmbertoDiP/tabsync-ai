@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "Tab Exporter",
+  "version": "1.1",
+  "permissions": ["tabs", "tabGroups", "downloads", "storage"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Tab Exporter - Export/Import"
+  },
+  "background": {
+    "service_worker": "background.js"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "Tab Group Organizer",
+  "version": "1.0",
+  "permissions": [
+    "tabs",
+    "tabGroups",
+    "storage",
+    "downloads"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Organizza gruppi tab"
+  },
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAv3+smRq6C4xBzt+h+vy0BrUWa5n7LG91QPqI1meUuX1C3FFAVBHL+p/XeEvdWVv2A9Mz6BbA9q62KL6fkN+64ggDf/UMfdYF1+88nvs8aQX9KnfM/nSSiHJ+KQEp53Hyk73OVuC7l1DyzEaXk0LnCtCFS6oRE2eHWscZ3oZnWtQvrfE1aVjFnRIJ82pwyWw+bnusfMPP6ycEi3IxAKv84/meN8rHtmR+MagXfHtGxSX092c83SsCwoaN2yDmxGoeOvgDlcjRnAY7TA+5TQXanyC3JJKVq2RNfmnx7RavcoszhsgZf/GbZ2Zo8Lj48JFfZRKbaBG45C825+MlrrYv9wIDAQAB"
+}

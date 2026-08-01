@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body { font-family: system-ui, sans-serif; width: 260px; padding: 16px; margin: 0; background: #1a1a2e; color: #e0e0e0; }
+    h2 { font-size: 16px; margin: 0 0 12px 0; color: #fff; text-align: center; }
+    button { width: 100%; padding: 10px; margin-bottom: 8px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; color: #fff; }
+    button:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-organize { background: #0f3460; }
+    .btn-organize:hover { background: #1a4a7a; }
+    .btn-clean { background: #533483; }
+    .btn-clean:hover { background: #6a44a3; }
+    .btn-export { background: #0d3b0d; }
+    .btn-export:hover { background: #1a5a1a; }
+    .btn-import { background: #d48b0e; }
+    .btn-import:hover { background: #e0a020; }
+    .stats { font-size: 11px; color: #666; text-align: center; margin: 8px 0; }
+    .status { font-size: 12px; text-align: center; padding: 8px; border-radius: 6px; margin-top: 8px; display: none; }
+    .status.success { display: block; background: #0d3b0d; color: #4ade80; }
+    .status.error { display: block; background: #3b0d0d; color: #f87171; }
+    .status.loading { display: block; background: #16213e; color: #60a5fa; }
+    .separator { border-top: 1px solid #333; margin: 10px 0; }
+    label { font-size: 10px; color: #666; display: block; margin-bottom: 2px; }
+    input[type="file"] { display: none; }
+  </style>
+</head>
+<body>
+  <h2>TabSync AI</h2>
+
+  <div class="stats" id="stats">Loading...</div>
+
+  <button class="btn-organize" id="btn-organize">Organize All Tabs</button>
+  <button class="btn-clean" id="btn-clean">Nuclear Clean</button>
+
+  <div class="separator"></div>
+
+  <button class="btn-export" id="btn-export">Export JSON</button>
+  <button class="btn-import" id="btn-import">Import JSON...</button>
+  <input type="file" id="file-input" accept=".json">
+
+  <div class="status" id="status"></div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

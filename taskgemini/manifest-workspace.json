@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "Workspace Manager",
+  "version": "2.0",
+  "permissions": ["tabs", "tabGroups", "windows", "storage", "downloads", "notifications", "contextMenus"],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "commands": {
+    "organize-all": {
+      "suggested_key": { "default": "Alt+O" },
+      "description": "Clean and organize all tabs"
+    },
+    "clean-all": {
+      "suggested_key": { "default": "Alt+X" },
+      "description": "Nuclear clean all windows"
+    }
+  }
+}
