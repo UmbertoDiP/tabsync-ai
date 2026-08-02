@@ -47,10 +47,13 @@ export async function runDeepEradication() {
       console.warn("[Cleaner] Bookmark purge error:", e);
     }
 
-    const oldWindows = await chrome.windows.getAll({ populate: true });
+    const oldWindowIds = (await chrome.windows.getAll({ populate: true }))
+      .filter(w => w.type === "normal")
+      .map(w => w.id);
 
-    for (const oldWin of oldWindows) {
-      if (oldWin.type !== "normal") continue;
+    for (const wid of oldWindowIds) {
+      const oldWin = await chrome.windows.get(wid, { populate: true });
+      if (!oldWin) continue;
 
       const tabs = oldWin.tabs || [];
       const allIds = tabs.map(t => t.id);
