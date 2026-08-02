@@ -7,7 +7,8 @@ const $ = (id) => document.getElementById(id);
 function setStep(n) {
   currentStep = n;
   document.querySelectorAll(".step-panel").forEach(p => p.classList.remove("active"));
-  $("step" + n).classList.add("active");
+  const panel = $("step" + n);
+  panel.classList.add("active");
   $("currentStepNum").textContent = n;
   $("progressBar").style.width = (n / 4) * 100 + "%";
 }
@@ -18,7 +19,6 @@ function showStatus(id, msg, type) {
   el.className = "status-msg " + type;
 }
 
-// Step 1: Download backup
 $("btnDownloadBackup").addEventListener("click", async () => {
   $("btnDownloadBackup").disabled = true;
   showStatus("backupStatus", "Saving backup...", "info");
@@ -27,7 +27,6 @@ $("btnDownloadBackup").addEventListener("click", async () => {
     if (r && r.success) {
       backupDownloaded = true;
       showStatus("backupStatus", "Backup saved! You can proceed.", "success");
-      // Auto-advance to step 2 after short delay
       setTimeout(() => setStep(2), 500);
       loadAudit();
     } else {
@@ -36,18 +35,23 @@ $("btnDownloadBackup").addEventListener("click", async () => {
   });
 });
 
-// Step 2: Load audit
 async function loadAudit() {
   chrome.runtime.sendMessage({ action: "get_full_audit" }, (r) => {
     if (r && r.success) {
       auditData = r;
-      $("auditBox").innerHTML = `
-        <span>${r.tabsCount}</span> open tabs<br>
-        <span>${r.groupsCount}</span> active groups<br>
-        <span>${r.hasBookmarks ? "Yes" : "No"}</span> saved groups in bookmarks
-      `;
+      const rows = [
+        { label: "Open tabs", value: r.tabsCount },
+        { label: "Active groups", value: r.groupsCount },
+        { label: "Saved in bookmarks", value: r.savedGroupsCount },
+      ];
+      $("auditBox").innerHTML = rows.map(row => `
+        <div class="audit-row">
+          <span class="audit-label">${row.label}</span>
+          <span class="audit-value">${row.value}</span>
+        </div>
+      `).join("");
     } else {
-      $("auditBox").innerHTML = "Failed to load audit.";
+      $("auditBox").innerHTML = "<div class='audit-row'><span class='audit-label'>Failed to load audit.</span></div>";
     }
   });
 }
@@ -56,22 +60,23 @@ $("chkConfirm").addEventListener("change", () => {
   $("btnExecute").disabled = !$("chkConfirm").checked;
 });
 
-// Step 3: Execute
 $("btnExecute").addEventListener("click", async () => {
   setStep(3);
   chrome.runtime.sendMessage({ action: "execute_deep_eradication" }, (r) => {
     setStep(4);
+    const el = $("resultText");
     if (r && r.success) {
-      $("resultText").textContent = `${r.tabs_remaining || 0} tabs, ${r.groups_remaining || 0} groups remaining. All clean!`;
+      el.textContent = `${r.tabs_remaining || 0} tabs, ${r.groups_remaining || 0} groups remaining. All clean!`;
+      el.className = "result-text";
     } else {
-      $("resultText").textContent = "Clean failed: " + (r?.error || "unknown");
+      el.textContent = "Clean failed: " + (r?.error || "unknown");
+      el.className = "result-text error";
     }
   });
 });
 
 $("btnClose").addEventListener("click", () => window.close());
 
-// Restore from backup
 $("btnRestore").addEventListener("click", () => {
   $("fileRestore").click();
 });
@@ -95,10 +100,8 @@ $("fileRestore").addEventListener("change", async (e) => {
   }
 });
 
-// Prevent advancing without backup
 if (!backupDownloaded) setStep(1);
 
-// Show user ID and billing status
 chrome.runtime.sendMessage({ action: "get_user_info" }, (r) => {
   if (r) {
     $("userIdDisplay").textContent = "ID: " + r.userId;
@@ -108,10 +111,13 @@ chrome.runtime.sendMessage({ action: "get_user_info" }, (r) => {
     }
     const freeLeft = r.freeUses !== undefined ? Math.max(0, 5 - r.freeUses) : 5;
     const credits = r.credits || 0;
-    $("billingDisplay").textContent = `Free ops: ${freeLeft}/5 | Credits: \$${credits.toFixed(2)}`;
+    const bd = $("billingDisplay");
+    bd.textContent = `Free ops: ${freeLeft}/5 | Credits: $${credits.toFixed(2)}`;
+    bd.className = "billing-display";
     if (freeLeft <= 0 && credits <= 0) {
-      $("billingDisplay").textContent += " (exhausted)";
-      $("btnBuyCredits").style.display = "block";
+      bd.textContent += " (exhausted)";
+      bd.classList.add("exhausted");
+      $("btnBuyCredits").style.display = "inline-block";
     }
   }
 });

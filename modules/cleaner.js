@@ -99,6 +99,18 @@ export async function runDeepEradication() {
       }
     }
 
+    const survivingGroups = await chrome.tabGroups.query({});
+    for (const g of survivingGroups) {
+      try {
+        const tempTab = await chrome.tabs.create({ windowId: g.windowId, url: "about:blank", active: false });
+        await chrome.tabs.group({ tabIds: tempTab.id, groupId: g.id });
+        await chrome.tabs.remove(tempTab.id);
+        console.log("[Cleaner] Eradicated surviving group:", g.title || "(unnamed)", g.id);
+      } catch (e) {
+        console.warn("[Cleaner] Group cleanup error:", e);
+      }
+    }
+
     await new Promise(r => setTimeout(r, 500));
 
     const finalGroups = await chrome.tabGroups.query({});

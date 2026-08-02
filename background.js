@@ -30,6 +30,15 @@ chrome.commands.onCommand.addListener((command) => {
   if (command === "clean-all") runDeepEradication();
 });
 
+function countSavedGroups(nodes) {
+  let count = 0;
+  for (const node of nodes) {
+    if (node.title && /(tab|tabsync).*(group|gruppo)|(group|gruppo).*(tab|tabsync)/i.test(node.title)) count++;
+    if (node.children) count += countSavedGroups(node.children);
+  }
+  return count;
+}
+
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg.action === "get_full_audit") {
     (async () => {
@@ -37,7 +46,8 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         const tabs = await chrome.tabs.query({});
         const groups = await chrome.tabGroups.query({});
         const tree = await chrome.bookmarks.getTree();
-        sendResponse({ success: true, tabsCount: tabs.length, groupsCount: groups.length, hasBookmarks: tree.length > 0 });
+        const savedGroupsCount = countSavedGroups(tree);
+        sendResponse({ success: true, tabsCount: tabs.length, groupsCount: groups.length, savedGroupsCount });
       } catch (e) {
         sendResponse({ success: false, error: e.message });
       }
