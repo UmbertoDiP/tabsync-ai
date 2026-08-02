@@ -1,5 +1,6 @@
 let cleaning = false;
 let onCreatedGuard = null;
+let creatingWindow = false;
 
 async function saveState() {
   const allTabs = await chrome.tabs.query({});
@@ -56,6 +57,7 @@ async function cleanSingleWindow(oldWin) {
   const toPreserve = tabs.filter(t => t.pinned || t.audible);
   const activeTab = tabs.find(t => t.active);
 
+  creatingWindow = true;
   const newWin = await chrome.windows.create({
     incognito: !!oldWin.incognito,
     focused: oldWin.focused,
@@ -64,6 +66,7 @@ async function cleanSingleWindow(oldWin) {
     ),
     left: oldWin.left, top: oldWin.top, width: oldWin.width, height: oldWin.height
   });
+  creatingWindow = false;
 
   if (toPreserve.length > 0) {
     const preserveIds = toPreserve.map(t => t.id);
@@ -107,7 +110,7 @@ export async function runDeepEradication() {
   const stopKeepAlive = await keepAlive();
 
   onCreatedGuard = (win) => {
-    if (win.type === "normal") {
+    if (win.type === "normal" && !creatingWindow) {
       chrome.windows.remove(win.id).catch(() => {});
     }
   };
