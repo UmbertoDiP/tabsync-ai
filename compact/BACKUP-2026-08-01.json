@@ -1,0 +1,65 @@
+{
+  "exported_at": "2026-08-01T23:46:05.702Z",
+  "total_tabs": 4,
+  "total_groups": 1,
+  "total_windows": 1,
+  "groups": [
+    {
+      "name": "08_YOUTUBE",
+      "color": "red",
+      "collapsed": false,
+      "windowId": 877305359,
+      "tab_count": 1
+    }
+  ],
+  "tabs": [
+    {
+      "id": 877305360,
+      "title": "Master Prompt per Analisi Rischi Legali - Google Gemini",
+      "url": "https://gemini.google.com/app/e2e707a36e3f303a",
+      "domain": "gemini.google.com",
+      "active": false,
+      "pinned": false,
+      "audible": false,
+      "windowId": 877305359,
+      "groupId": -1,
+      "groupTitle": null
+    },
+    {
+      "id": 877305533,
+      "title": "WhatsApp",
+      "url": "https://web.whatsapp.com/",
+      "domain": "web.whatsapp.com",
+      "active": false,
+      "pinned": false,
+      "audible": false,
+      "windowId": 877305359,
+      "groupId": -1,
+      "groupTitle": null
+    },
+    {
+      "id": 877305534,
+      "title": "Estensioni",
+      "url": "chrome://extensions/",
+      "domain": "extensions",
+      "active": true,
+      "pinned": false,
+      "audible": false,
+      "windowId": 877305359,
+      "groupId": -1,
+      "groupTitle": null
+    },
+    {
+      "id": 877305535,
+      "title": "Giza nasconde una Seconda Sfinge: ecco tutte le prove! - YouTube",
+      "url": "https://www.youtube.com/watch?v=vUiMcyIvfec",
+      "domain": "www.youtube.com",
+      "active": false,
+      "pinned": false,
+      "audible": false,
+      "windowId": 877305359,
+      "groupId": 297908863,
+      "groupTitle": "08_YOUTUBE"
+    }
+  ]
+}

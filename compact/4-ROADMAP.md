@@ -109,6 +109,18 @@
 - **Dependency**: None
 - **Next step**: Decide on appropriate contact address
 
+### Task 3.6: Cloud backup per utenti premium
+- **Status**: NOT STARTED (future feature)
+- **Files**: `backend/worker.js`, `modules/cloud.js`, `modules/exporter.js`
+- **Action**: Implement backup su Cloudflare R2 (o Workers KV) per utenti paganti
+  - Nuovo endpoint worker: `POST /api/backup-upload` e `GET /api/backup-download`
+  - Salvataggio JSON backup associato allo userId in KV o R2
+  - UI nel wizard: opzione "Save backup to cloud (premium)" nello step 1
+  - Restore da cloud accessibile dal footer
+  - Verifica stato premium via contatore credits>0
+- **Dependency**: Task 3.1 (Stripe reale) — per identificare utenti paganti
+- **Next step**: Creare account Cloudflare R2 bucket, implementare endpoint worker
+
 ## Critical Path
 ```
 1. Fix manifest.json (icons + version + default_icon) → 2. Rebuild store zip → 3. Manual Chrome test → 4. Chrome Web Store upload → 5. Stripe setup → 6. LLM decision
